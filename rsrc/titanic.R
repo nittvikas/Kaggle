@@ -109,17 +109,26 @@ lda_fit
 #now prediction
 lda_pred = predict(lda_fit, train_new_test)
 lda_pre_class = lda_pred$class
-
+test_data_lda = test_data[,c("PassengerId", "Pclass", "Fare", "Age")]
+summary(test_data_lda)
+test_data_lda$Fare = ifelse(is.na(test_data_lda$Fare), mean(test_data_lda$Fare, na.rm = TRUE), test_data_lda$Fare)
+test_data_lda$Age = ifelse(is.na(test_data_lda$Age), mean(test_data_lda$Age, na.rm = TRUE), test_data_lda$Age)
 table(lda_pre_class, train_new_test_val$Survived)
 mean(lda_pre_class == train_new_test_val$Survived)
 # so our model is 71.73% accurate
 # now let's try to train it on the entire file and now this time we will pass it the actual test file
+summary(train_new)
+lda_fit = lda(Survived~Pclass+Fare+Age, data = train_new)
 
+lda_pred = predict(lda_fit, test_data_lda)
+lda_pred_class = lda_pred$class
+test_data_lda$Survived = lda_pred_class
+submission = test_data_lda[, c("PassengerId", "Survived")]
+dim(submission)
+dim(test_data)
 
-
-
-
-
+head(submission)
+write_csv(submission, "data/submission_LDA.csv")
 
 
 
